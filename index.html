@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>萤火支教 - 点亮希望·筑梦前行</title>
 
-    <!-- CloudBase SDK -->
-    <script src="https://web-9gikcbug35bad3a8-1304825656.tcloudbaseapp.com/sdk/1.6.0/cloud.js"></script>
+    <!-- 腾讯云官方稳定SDK -->
+    <script src="https://imgcache.qq.com/qcloud/tcbjs/1.10.8/tcb.js"></script>
 
     <style>
         :root {
@@ -137,9 +137,9 @@
         <div class="navbar-inner">
             <a href="#" class="nav-logo"><span class="logo-icon">🪲</span>萤火支教</a>
             <ul class="nav-links" id="navLinks">
-                <li><a href="#home">🏠 首页</a></li>
-                <li><a href="#messages">💬 留言板</a></li>
-                <li><a href="#register">✍️ 报名</a></li>
+                <li><a href="#home" class="active">首页</a></li>
+                <li><a href="#messages">留言板</a></li>
+                <li><a href="#register" class="btn-nav">报名</a></li>
             </ul>
         </div>
     </nav>
@@ -147,17 +147,16 @@
     <section class="hero" id="home">
         <div class="hero-content">
             <div class="hero-text">
-                <h1>用一段<span>支教时光</span><br>点亮乡村孩子的未来</h1>
-                <p>萤火支教团队已走过8个省份、服务超过50所乡村学校。我们相信，每个大学生都是一束光，汇聚便能照亮远方。</p>
+                <h1>萤火支教 · <span>点亮希望</span></h1>
+                <p>用微光汇聚星河，用陪伴温暖时光。我们用知识的火种，照亮乡村孩子的梦想。</p>
                 <div class="hero-buttons">
-                    <a href="#messages" class="btn btn-primary">💬 进入留言板</a>
-                    <a href="#register" class="btn btn-outline">✍️ 立即报名</a>
+                    <a href="#register" class="btn btn-primary">立即报名</a>
+                    <a href="#messages" class="btn btn-outline">查看留言</a>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- 留言板区域 -->
     <section class="section" id="messages">
         <div class="section-header">
             <span class="section-tag">MESSAGES</span>
@@ -167,146 +166,74 @@
         <div class="register-section">
             <div class="form-group">
                 <label>你的昵称</label>
-                <input type="text" id="msgNick" placeholder="给自己起个名字吧">
+                <input type="text" id="nickname" placeholder="请输入你的昵称">
             </div>
             <div class="form-group">
                 <label>你的留言</label>
-                <textarea id="msgContent" placeholder="想说什么呢？" rows="3"></textarea>
+                <textarea id="message" placeholder="写下你想说的话..."></textarea>
             </div>
-            <button class="btn btn-primary" onclick="submitMessage()" style="width:100%;">💬 发布留言</button>
-            <div id="messageList" style="margin-top:30px;"></div>
+            <button class="btn btn-primary" onclick="submitMessage()">提交留言</button>
         </div>
     </section>
 
-    <!-- 报名区域（占位，保留原有功能） -->
     <section class="section" id="register">
-        <div class="section-header"><span class="section-tag">APPLY</span><h2>志愿者报名</h2><p>填写表单，加入萤火支教团队</p></div>
+        <div class="section-header">
+            <span class="section-tag">JOIN US</span>
+            <h2>志愿者报名</h2>
+            <p>和我们一起，成为照亮乡村的那束光</p>
+        </div>
         <div class="register-section">
-            <form id="registerForm">
-                <div class="form-group"><label>姓名</label><input type="text" id="name" required></div>
-                <div class="form-group"><label>学校</label><input type="text" id="university" required></div>
-                <div class="form-group"><label>手机号</label><input type="tel" id="phone" required></div>
-                <button type="submit" class="btn btn-primary" style="width:100%;">提交报名</button>
-            </form>
+            <div class="form-group">
+                <label>你的姓名</label>
+                <input type="text" placeholder="请输入姓名">
+            </div>
+            <div class="form-group">
+                <label>联系方式</label>
+                <input type="text" placeholder="请输入手机号">
+            </div>
+            <div class="form-group">
+                <label>留言（选填）</label>
+                <textarea placeholder="写下你想说的话..."></textarea>
+            </div>
+            <button class="btn btn-primary">提交报名</button>
         </div>
     </section>
 
-    <footer class="footer"><p>🪲 萤火支教 · 点亮希望</p></footer>
+    <footer class="footer">
+        <p>© 2026 萤火支教 · 点亮希望·筑梦前行</p>
+    </footer>
 
+    <!-- 云开发初始化+留言提交（已配置好你的环境ID和集合名） -->
     <script>
-        // ========== CloudBase 初始化 ==========
-        const app = cloudbase.init({
-            env: 'zhijiao-d6guww7bv19d5c6bc'   // ⬅️ 你的环境 ID 在这里！
+        const app = tcb.init({
+            env: "zhijiao-d6guww7bv19d5c6bc"
         });
         const db = app.database();
 
-        // ========== 留言板功能 ==========
         async function submitMessage() {
-            const nick = document.getElementById('msgNick').value.trim();
-            const content = document.getElementById('msgContent').value.trim();
-            if (!nick || !content) {
-                alert('昵称和留言不能为空');
+            const name = document.getElementById('nickname').value.trim();
+            const content = document.getElementById('message').value.trim();
+
+            if (!name || !content) {
+                alert('昵称和留言都不能为空哦~');
                 return;
             }
+
             try {
-                await db.collection('messages').add({
-                    nick,
-                    content,
-                    reply: '',
-                    createdAt: new Date()
+                await db.collection('message').add({
+                    data: {
+                        name: name,
+                        content: content,
+                        createTime: new Date()
+                    }
                 });
-                document.getElementById('msgNick').value = '';
-                document.getElementById('msgContent').value = '';
-                loadMessages();
-            } catch (e) {
-                alert('发布失败，请稍后重试');
-                console.error(e);
+                alert('留言发布成功！');
+                location.reload();
+            } catch (err) {
+                console.error('发布失败:', err);
+                alert('发布失败: ' + err.message);
             }
         }
-        window.submitMessage = submitMessage;
-
-        async function loadMessages() {
-            const container = document.getElementById('messageList');
-            if (!container) return;
-            try {
-                const res = await db.collection('messages')
-                                      .orderBy('createdAt', 'desc')
-                                      .get();
-                const data = res.data;
-                if (data.length === 0) {
-                    container.innerHTML = '<p style="text-align:center;color:gray;">还没有留言，快来写第一条吧~</p>';
-                    return;
-                }
-                container.innerHTML = data.map(msg => `
-                    <div style="background:#fff;padding:16px;border-radius:12px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
-                        <div style="font-weight:600;color:var(--primary);margin-bottom:6px;">
-                            ${escapeHTML(msg.nick)}
-                            <span style="font-size:0.8rem;color:var(--text-lighter);margin-left:8px;">
-                                ${msg.createdAt ? new Date(msg.createdAt).toLocaleString() : ''}
-                            </span>
-                        </div>
-                        <div style="margin-bottom:10px;">${escapeHTML(msg.content)}</div>
-                        ${msg.reply ? `
-                            <div style="background:var(--primary-light);padding:10px;border-radius:8px;color:var(--secondary);font-size:0.9rem;">
-                                <strong>大朋友回复：</strong>${escapeHTML(msg.reply)}
-                            </div>
-                        ` : ''}
-                        <button class="btn btn-sm btn-outline" onclick="replyToMessage('${msg._id}', '${escapeHTML(msg.nick)}')" style="margin-top:8px;">回复</button>
-                    </div>
-                `).join('');
-            } catch (e) {
-                console.error('加载留言失败', e);
-                container.innerHTML = '<p style="color:red;">留言加载失败，请刷新页面重试。</p>';
-            }
-        }
-        window.loadMessages = loadMessages;
-
-        async function replyToMessage(id, nick) {
-            const replyText = prompt(`回复给 ${nick}：`);
-            if (!replyText) return;
-            try {
-                await db.collection('messages').doc(id).update({ reply: replyText });
-                loadMessages();
-            } catch (e) {
-                alert('回复失败，请重试');
-                console.error(e);
-            }
-        }
-        window.replyToMessage = replyToMessage;
-
-        function escapeHTML(str) {
-            const div = document.createElement('div');
-            div.textContent = str;
-            return div.innerHTML;
-        }
-
-        // 页面加载时自动显示留言
-        document.addEventListener('DOMContentLoaded', loadMessages);
-
-        // ========== 报名表提交（也存到 CloudBase） ==========
-        document.getElementById('registerForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const name = document.getElementById('name').value.trim();
-            const university = document.getElementById('university').value.trim();
-            const phone = document.getElementById('phone').value.trim();
-            if (!name || !university || !phone) {
-                alert('请完整填写信息');
-                return;
-            }
-            try {
-                await db.collection('applications').add({
-                    name,
-                    university,
-                    phone,
-                    createdAt: new Date()
-                });
-                alert('报名成功！');
-                this.reset();
-            } catch (e) {
-                alert('报名失败，请重试');
-                console.error(e);
-            }
-        });
     </script>
 </body>
 </html>
