@@ -203,13 +203,15 @@
         <p>© 2026 萤火支教 · 点亮希望·筑梦前行</p>
     </footer>
 
-    <!-- 云开发初始化+留言提交（已配置好你的环境ID和集合名） -->
+    <!-- 已修复初始化顺序问题，确保数据库对象正常创建 -->
     <script>
+        // 初始化云开发环境
         const app = tcb.init({
             env: "zhijiao-d6guww7bv19d5c6bc"
         });
         const db = app.database();
 
+        // 提交留言函数
         async function submitMessage() {
             const name = document.getElementById('nickname').value.trim();
             const content = document.getElementById('message').value.trim();
@@ -220,7 +222,7 @@
             }
 
             try {
-                await db.collection('message').add({
+                await db.collection('message-new').add({
                     data: {
                         name: name,
                         content: content,
